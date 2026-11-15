@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Number System & Data Type Conversion Calculator</title>
+  <style>
+    :root {
+      --primary-red: #cc0000;
+      --primary-red-hover: #a30000;
+      --border-color: #d1d5db;
+      --bg-page: #f8f9fa;
+      --bg-card: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      padding: 28px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border-top: 5px solid var(--primary-red);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
+    .subtitle {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section-header {
+      background-color: var(--primary-red);
+      color: #ffffff;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 4px;
+      margin-top: 24px;
+      margin-bottom: 16px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 6px;
+      color: #374151;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    label span.range-hint {
+      font-weight: 400;
+      color: var(--text-muted);
+      text-transform: none;
+      font-size: 0.75rem;
+    }
+
+    input[type="text"] {
+      padding: 10px 12px;
+      font-size: 1rem;
+      font-family: "Courier New", Courier, monospace;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.15);
+    }
+
+    input.error {
+      border-color: #dc2626;
+      background-color: #fef2f2;
+    }
+
+    input.overflow-warn {
+      border-color: #d97706;
+      background-color: #fffbeb;
+    }
+
+    .status-badge {
+      display: none;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #92400e;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      padding: 5px 9px;
+      border-radius: 4px;
+    }
+
+    .status-badge.visible {
+      display: block;
+    }
+
+    .ascii-badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: #4b5563;
+      background: #f3f4f6;
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    /* Bit Manipulation Grid */
+    .bit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .bit-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .byte-group {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 8px;
+      background: #fafafa;
+    }
+
+    .byte-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .bits-row {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+    }
+
+    .bit-btn {
+      aspect-ratio: 1 / 1.15;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      font-family: "Courier New", Courier, monospace;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 0;
+      transition: all 0.1s;
+    }
+
+    .bit-btn.active {
+      background-color: var(--primary-red);
+      color: #ffffff;
+      border-color: var(--primary-red);
+    }
+
+    .bit-btn:hover {
+      border-color: var(--primary-red);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .action-btn {
+      background-color: #374151;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .action-btn:hover {
+      background-color: #1f2937;
+    }
+
+    .action-btn.danger {
+      background-color: var(--primary-red);
+    }
+
+    .action-btn.danger:hover {
+      background-color: var(--primary-red-hover);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Number System & C/C++ Data Type Calculator</h1>
+  <p class="subtitle">
+    Enter any value in any base or C/C++ type below. Out-of-range numbers automatically wrap using two's complement modulo math and display the exact <strong>overflow/underflow result</strong>.
+  </p>
+
+  <!-- Standard Base Conversions -->
+  <div class="section-header">Base Number Systems (32-Bit Unsigned View)</div>
+  <div class="grid-2">
+    <div class="input-group">
+      <label for="dec">Decimal <span class="range-hint">Base 10</span></label>
+      <input type="text" id="dec" value="32768" autocomplete="off" />
+    </div>
+    <div class="input-group">
+      <label for="hex">Hexadecimal <span class="range-hint">Base 16</span></label>
+      <input type="text" id="hex" value="8000" autocomplete="off" />
+    </div>
+    <div class="input-group">
+      <label for="oct">Octal <span class="range-hint">Base 8</span></label>
+      <input type="text" id="oct" value="100000" autocomplete="off" />
+    </div>
+    <div class="input-group">
+      <label for="bin">Binary <span class="range-hint">Base 2</span></label>
+      <input type="text" id="bin" value="1000000000000000" autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- C/C++ Int, Short, and Char Types -->
+  <div class="section-header">C / C++ Integer & Character Types (With Overflow Wraparound)</div>
+  <div class="grid-2">
+    <!-- 32-bit int -->
+    <div class="input-group">
+      <label for="uint32">unsigned int <span class="range-hint">0 to 4,294,967,295 (32-bit)</span></label>
+      <input type="text" id="uint32" value="32768" autocomplete="off" />
+      <div class="status-badge" id="warn-uint32"></div>
+    </div>
+    <div class="input-group">
+      <label for="int32">signed int <span class="range-hint">-2,147,483,648 to 2,147,483,647 (32-bit)</span></label>
+      <input type="text" id="int32" value="32768" autocomplete="off" />
+      <div class="status-badge" id="warn-int32"></div>
+    </div>
+
+    <!-- 16-bit short -->
+    <div class="input-group">
+      <label for="ushort16">unsigned short <span class="range-hint">0 to 65,535 (Low 16 bits)</span></label>
+      <input type="text" id="ushort16" value="32768" autocomplete="off" />
+      <div class="status-badge" id="warn-ushort16"></div>
+    </div>
+    <div class="input-group">
+      <label for="short16">signed short <span class="range-hint">-32,768 to 32,767 (Low 16 bits)</span></label>
+      <input type="text" id="short16" value="-32768" autocomplete="off" />
+      <div class="status-badge" id="warn-short16"></div>
+    </div>
+
+    <!-- 8-bit char -->
+    <div class="input-group">
+      <label for="uchar8">unsigned char <span class="range-hint">0 to 255 (Low 8 bits)</span></label>
+      <input type="text" id="uchar8" value="0" autocomplete="off" />
+      <div class="status-badge" id="warn-uchar8"></div>
+      <div class="ascii-badge" id="ascii-display">ASCII (Low Byte): NUL (control char)</div>
+    </div>
+    <div class="input-group">
+      <label for="char8">signed char <span class="range-hint">-128 to 127 (Low 8 bits)</span></label>
+      <input type="text" id="char8" value="0" autocomplete="off" />
+      <div class="status-badge" id="warn-char8"></div>
+    </div>
+  </div>
+
+  <!-- Interactive 32-Bit Manipulation -->
+  <div class="section-header">32-Bit Binary Manipulation (Bits 15–0 = short | Bits 7–0 = char)</div>
+  <div class="bit-grid" id="bit-grid"></div>
+
+  <div class="controls">
+    <button class="action-btn" id="btn-set-all">Set All</button>
+    <button class="action-btn" id="btn-shl">Shift Left (<< 1)</button>
+    <button class="action-btn" id="btn-shr">Shift Right (>> 1)</button>
+    <button class="action-btn" id="btn-invert">Invert (~)</button>
+    <button class="action-btn danger" id="btn-clear">Clear All</button>
+  </div>
+</div>
+
+<script>
+  // Master 32-bit unsigned integer state (0 to 4294967295)
+  let currentValue = 32768 >>> 0;
+
+  // True mathematical modulo that always returns positive remainder for negative numbers
+  function mod(n, m) {
+    return ((n % m) + m) % m;
+  }
+
+  const inputs = {
+    dec: document.getElementById('dec'),
+    hex: document.getElementById('hex'),
+    oct: document.getElementById('oct'),
+    bin: document.getElementById('bin'),
+    uint32: document.getElementById('uint32'),
+    int32: document.getElementById('int32'),
+    ushort16: document.getElementById('ushort16'),
+    short16: document.getElementById('short16'),
+    uchar8: document.getElementById('uchar8'),
+    char8: document.getElementById('char8'),
+  };
+
+  const warnings = {
+    uint32: document.getElementById('warn-uint32'),
+    int32: document.getElementById('warn-int32'),
+    ushort16: document.getElementById('warn-ushort16'),
+    short16: document.getElementById('warn-short16'),
+    uchar8: document.getElementById('warn-uchar8'),
+    char8: document.getElementById('warn-char8'),
+  };
+
+  const asciiDisplay = document.getElementById('ascii-display');
+  const bitGrid = document.getElementById('bit-grid');
+  const bitButtons = [];
+
+  function initBitGrid() {
+    for (let byteIdx = 3; byteIdx >= 0; byteIdx--) {
+      const highBit = byteIdx * 8 + 7;
+      const lowBit = byteIdx * 8;
+
+      const byteGroup = document.createElement('div');
+      byteGroup.className = 'byte-group';
+
+      const labels = document.createElement('div');
+      labels.className = 'byte-labels';
+      labels.innerHTML = '<span>Bit ' + highBit + '</span><span>Bit ' + lowBit + '</span>';
+      byteGroup.appendChild(labels);
+
+      const row = document.createElement('div');
+      row.className = 'bits-row';
+
+      for (let bit = highBit; bit >= lowBit; bit--) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bit-btn';
+        btn.textContent = '0';
+        btn.addEventListener('click', function () {
+          currentValue = (currentValue ^ (1 << bit)) >>> 0;
+          clearStatuses();
+          updateUI();
+        });
+        row.appendChild(btn);
+        bitButtons[bit] = btn;
+      }
+
+      byteGroup.appendChild(row);
+      bitGrid.appendChild(byteGroup);
+    }
+  }
+
+  function getAsciiDescription(byteVal) {
+    const controlNames = [
+      'NUL','SOH','STX','ETX','EOT','ENQ','ACK','BEL',
+      'BS','TAB','LF','VT','FF','CR','SO','SI',
+      'DLE','DC1','DC2','DC3','DC4','NAK','SYN','ETB',
+      'CAN','EM','SUB','ESC','FS','GS','RS','US'
+    ];
+    if (byteVal < 32) return controlNames[byteVal] + ' (control char)';
+    if (byteVal === 32) return "' ' (Space)";
+    if (byteVal === 127) return 'DEL (Delete)';
+    if (byteVal > 127) return 'Extended ASCII (0x' + byteVal.toString(16).toUpperCase() + ')';
+    return "'" + String.fromCharCode(byteVal) + "'";
+  }
+
+  function clearStatuses() {
+    Object.keys(inputs).forEach(function (k) {
+      inputs[k].classList.remove('error');
+      inputs[k].classList.remove('overflow-warn');
+    });
+    Object.keys(warnings).forEach(function (k) {
+      warnings[k].classList.remove('visible');
+      warnings[k].textContent = '';
+    });
+  }
+
+  function setOverflowWarning(key, rawVal, min, max, wrappedVal) {
+    inputs[key].classList.add('overflow-warn');
+    const typeLabel = rawVal > max ? 'Overflow' : 'Underflow';
+    warnings[key].textContent = typeLabel + ' (' + min + ' to ' + max + ') → Wrapped value: ' + wrappedVal;
+    warnings[key].classList.add('visible');
+  }
+
+  function updateUI(skipSource) {
+    const u32 = currentValue >>> 0;
+    const i32 = u32 | 0;
+
+    const u16 = u32 & 0xFFFF;
+    const i16 = (u16 << 16) >> 16;
+
+    const u8 = u32 & 0xFF;
+    const i8 = (u8 << 24) >> 24;
+
+    if (skipSource !== 'dec') inputs.dec.value = u32.toString(10);
+    if (skipSource !== 'hex') inputs.hex.value = u32.toString(16).toUpperCase();
+    if (skipSource !== 'oct') inputs.oct.value = u32.toString(8);
+    if (skipSource !== 'bin') inputs.bin.value = u32.toString(2);
+
+    if (skipSource !== 'uint32') inputs.uint32.value = u32.toString(10);
+    if (skipSource !== 'int32') inputs.int32.value = i32.toString(10);
+
+    if (skipSource !== 'ushort16') inputs.ushort16.value = u16.toString(10);
+    if (skipSource !== 'short16') inputs.short16.value = i16.toString(10);
+
+    if (skipSource !== 'uchar8') inputs.uchar8.value = u8.toString(10);
+    if (skipSource !== 'char8') inputs.char8.value = i8.toString(10);
+
+    asciiDisplay.textContent = 'ASCII (Low Byte): ' + getAsciiDescription(u8);
+
+    for (let bit = 0; bit < 32; bit++) {
+      const isSet = ((u32 >>> bit) & 1) === 1;
+      bitButtons[bit].textContent = isSet ? '1' : '0';
+      bitButtons[bit].classList.toggle('active', isSet);
+    }
+  }
+
+  // Base Input Listeners
+  inputs.dec.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '' || val === '-') return;
+    if (!/^-?\d+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = Number(val);
+    currentValue = mod(Math.trunc(num), 4294967296) >>> 0;
+    updateUI('dec');
+  });
+
+  inputs.hex.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim().replace(/^0x/i, '');
+    if (val === '') return;
+    if (!/^[0-9a-fA-F]+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = parseInt(val, 16);
+    currentValue = mod(num, 4294967296) >>> 0;
+    updateUI('hex');
+  });
+
+  inputs.oct.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '') return;
+    if (!/^[0-7]+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = parseInt(val, 8);
+    currentValue = mod(num, 4294967296) >>> 0;
+    updateUI('oct');
+  });
+
+  inputs.bin.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim().replace(/\s+/g, '');
+    if (val === '') return;
+    if (!/^[01]+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = parseInt(val, 2);
+    currentValue = mod(num, 4294967296) >>> 0;
+    updateUI('bin');
+  });
+
+  // 32-bit unsigned int
+  inputs.uint32.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '' || val === '-') return;
+    if (!/^-?\d+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = Number(val);
+    const wrappedU32 = mod(Math.trunc(num), 4294967296) >>> 0;
+    currentValue = wrappedU32;
+    if (num < 0 || num > 4294967295) {
+      setOverflowWarning('uint32', num, 0, 4294967295, wrappedU32);
+    }
+    updateUI('uint32');
+  });
+
+  // 32-bit signed int
+  inputs.int32.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '' || val === '-') return;
+    if (!/^-?\d+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = Number(val);
+    const wrappedU32 = mod(Math.trunc(num), 4294967296) >>> 0;
+    const wrappedI32 = wrappedU32 | 0;
+    currentValue = wrappedU32;
+    if (num < -2147483648 || num > 2147483647) {
+      setOverflowWarning('int32', num, -2147483648, 2147483647, wrappedI32);
+    }
+    updateUI('int32');
+  });
+
+  // 16-bit unsigned short
+  inputs.ushort16.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '' || val === '-') return;
+    if (!/^-?\d+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = Number(val);
+    const wrappedU16 = mod(Math.trunc(num), 65536);
+    currentValue = wrappedU16 >>> 0;
+    if (num < 0 || num > 65535) {
+      setOverflowWarning('ushort16', num, 0, 65535, wrappedU16);
+    }
+    updateUI('ushort16');
+  });
+
+  // 16-bit signed short
+  inputs.short16.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '' || val === '-') return;
+    if (!/^-?\d+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = Number(val);
+    const wrappedU16 = mod(Math.trunc(num), 65536);
+    const wrappedI16 = (wrappedU16 << 16) >> 16;
+    currentValue = wrappedU16 >>> 0;
+    if (num < -32768 || num > 32767) {
+      setOverflowWarning('short16', num, -32768, 32767, wrappedI16);
+    }
+    updateUI('short16');
+  });
+
+  // 8-bit unsigned char
+  inputs.uchar8.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '' || val === '-') return;
+    if (!/^-?\d+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = Number(val);
+    const wrappedU8 = mod(Math.trunc(num), 256);
+    currentValue = wrappedU8 >>> 0;
+    if (num < 0 || num > 255) {
+      setOverflowWarning('uchar8', num, 0, 255, wrappedU8);
+    }
+    updateUI('uchar8');
+  });
+
+  // 8-bit signed char
+  inputs.char8.addEventListener('input', function (e) {
+    clearStatuses();
+    const val = e.target.value.trim();
+    if (val === '' || val === '-') return;
+    if (!/^-?\d+$/.test(val)) {
+      e.target.classList.add('error');
+      return;
+    }
+    const num = Number(val);
+    const wrappedU8 = mod(Math.trunc(num), 256);
+    const wrappedI8 = (wrappedU8 << 24) >> 24;
+    currentValue = wrappedU8 >>> 0;
+    if (num < -128 || num > 127) {
+      setOverflowWarning('char8', num, -128, 127, wrappedI8);
+    }
+    updateUI('char8');
+  });
+
+  // Button Controls
+  document.getElementById('btn-set-all').addEventListener('click', function () {
+    clearStatuses();
+    currentValue = 0xFFFFFFFF >>> 0;
+    updateUI();
+  });
+
+  document.getElementById('btn-clear').addEventListener('click', function () {
+    clearStatuses();
+    currentValue = 0;
+    updateUI();
+  });
+
+  document.getElementById('btn-shl').addEventListener('click', function () {
+    clearStatuses();
+    currentValue = (currentValue << 1) >>> 0;
+    updateUI();
+  });
+
+  document.getElementById('btn-shr').addEventListener('click', function () {
+    clearStatuses();
+    currentValue = (currentValue >>> 1) >>> 0;
+    updateUI();
+  });
+
+  document.getElementById('btn-invert').addEventListener('click', function () {
+    clearStatuses();
+    currentValue = (~currentValue) >>> 0;
+    updateUI();
+  });
+
+  // Initialize
+  initBitGrid();
+  updateUI();
+</script>
+
+</body>
+</html>
